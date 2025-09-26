@@ -1,101 +1,165 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import {
+  SelfQRcodeWrapper,
+  SelfAppBuilder,
+  type SelfApp,
+  countries, 
+  getUniversalLink,
+} from "@selfxyz/qrcode";
+import { ethers } from "ethers";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const router = useRouter();
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [selfApp, setSelfApp] = useState<SelfApp | null>(null);
+  const [universalLink, setUniversalLink] = useState("");
+  const [userId] = useState(ethers.ZeroAddress);
+  // Use useMemo to cache the array to avoid creating a new array on each render
+  const excludedCountries = useMemo(() => [countries.UNITED_STATES], []);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  // Use useEffect to ensure code only executes on the client side
+  useEffect(() => {
+    try {
+      const app = new SelfAppBuilder({
+        version: 2,
+        appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || "Self Workshop",
+        scope: process.env.NEXT_PUBLIC_SELF_SCOPE || "test-scope",
+        endpoint: `0xef5d57e5ffda68d57fcb0041ef46dd8dac4da778`,
+        logoBase64:
+          "https://i.postimg.cc/mrmVf9hm/self.png", // url of a png image, base64 is accepted but not recommended
+        userId: userId,
+        endpointType: "staging_celo",
+        userIdType: "hex", // use 'hex' for ethereum address or 'uuid' for uuidv4
+        userDefinedData: "Hello Eth Delhi!!!",
+        disclosures: {
+        // what you want to verify from users' identity
+          minimumAge: 18,
+          // ofac: true,
+          excludedCountries: excludedCountries,
+          // what you want users to reveal
+          // name: false,
+          // issuing_state: true,
+          // nationality: true,
+          // date_of_birth: true,
+          // passport_number: false,
+          // gender: true,
+          // expiry_date: false,
+        }
+      }).build();
+
+      setSelfApp(app);
+      setUniversalLink(getUniversalLink(app));
+    } catch (error) {
+      console.error("Failed to initialize Self app:", error);
+    }
+  }, [excludedCountries, userId]);
+
+  const displayToast = (message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const copyToClipboard = () => {
+    if (!universalLink) return;
+
+    navigator.clipboard
+      .writeText(universalLink)
+      .then(() => {
+        setLinkCopied(true);
+        displayToast("Universal link copied to clipboard!");
+        setTimeout(() => setLinkCopied(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+        displayToast("Failed to copy link");
+      });
+  };
+
+  const openSelfApp = () => {
+    if (!universalLink) return;
+
+    window.open(universalLink, "_blank");
+    displayToast("Opening Self App...");
+  };
+
+  const handleSuccessfulVerification = () => {
+    displayToast("Verification successful! Redirecting...");
+    setTimeout(() => {
+      router.push("/verified");
+    }, 1500);
+  };
+
+  return (
+    <div className="min-h-screen w-full bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
+      {/* Header */}
+      <div className="mb-6 md:mb-8 text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-800">
+          {process.env.NEXT_PUBLIC_SELF_APP_NAME || "Self Workshop"}
+        </h1>
+        <p className="text-sm sm:text-base text-gray-600 px-2">
+          Scan QR code with Self Protocol App to verify your identity
+        </p>
+      </div>
+
+      {/* Main content */}
+      <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto">
+        <div className="flex justify-center mb-4 sm:mb-6">
+          {selfApp ? (
+            <SelfQRcodeWrapper
+              selfApp={selfApp}
+              onSuccess={handleSuccessfulVerification}
+              onError={() => {
+                displayToast("Error: Failed to verify identity");
+              }}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          ) : (
+            <div className="w-[256px] h-[256px] bg-gray-200 animate-pulse flex items-center justify-center">
+              <p className="text-gray-500 text-sm">Loading QR Code...</p>
+            </div>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2 mb-4 sm:mb-6">
+          <button
+            type="button"
+            onClick={copyToClipboard}
+            disabled={!universalLink}
+            className="flex-1 bg-gray-800 hover:bg-gray-700 transition-colors text-white p-2 rounded-md text-sm sm:text-base disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {linkCopied ? "Copied!" : "Copy Universal Link"}
+          </button>
+
+          <button
+            type="button"
+            onClick={openSelfApp}
+            disabled={!universalLink}
+            className="flex-1 bg-blue-600 hover:bg-blue-500 transition-colors text-white p-2 rounded-md text-sm sm:text-base mt-2 sm:mt-0 disabled:bg-blue-300 disabled:cursor-not-allowed"
+          >
+            Open Self App
+          </button>
+
+
+        </div>
+        <div className="flex flex-col items-center gap-2 mt-2">
+          <span className="text-gray-500 text-xs uppercase tracking-wide">User Address</span>
+          <div className="bg-gray-100 rounded-md px-3 py-2 w-full text-center break-all text-sm font-mono text-gray-800 border border-gray-200">
+            {userId ? userId : <span className="text-gray-400">Not connected</span>}
+          </div>
+        </div>
+
+        {/* Toast notification */}
+        {showToast && (
+          <div className="fixed bottom-4 right-4 bg-gray-800 text-white py-2 px-4 rounded shadow-lg animate-fade-in text-sm">
+            {toastMessage}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
