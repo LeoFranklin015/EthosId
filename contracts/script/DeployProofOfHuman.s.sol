@@ -46,6 +46,6 @@ contract DeployProofOfHuman is BaseScript {
         console.log("Next step: Calculate actual scope using deployed address and call setScope()");
 
         // Set registry addresses for different countries
-        proofOfHuman._setRegistry("IND", 0xBa9F0059500DF81eb4ab8CcD16FD3DF379bA7C57);
+        proofOfHuman._setRegistry("IND", 0x4f339A1F489D42F4e5Da00398e6ecEa38C2f687E);
     }
 }
