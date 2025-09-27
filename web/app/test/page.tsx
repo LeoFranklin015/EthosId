@@ -10,6 +10,7 @@ import {
   getUniversalLink,
 } from "@selfxyz/qrcode";
 import { ethers } from "ethers";
+import Navbar from "../../components/Navbar";
 
 export default function Home() {
   const router = useRouter();
@@ -97,6 +98,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen w-full bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
+      <Navbar />
       {/* Header */}
       <div className="mb-6 md:mb-8 text-center">
         <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-800">

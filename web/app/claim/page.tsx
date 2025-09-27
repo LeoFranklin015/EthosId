@@ -14,6 +14,7 @@ import {
   countries, 
   getUniversalLink,
 } from "@selfxyz/qrcode"
+import Navbar from "@/components/Navbar"
 
 const glowRing = "border border-[#1663F3]"
 const glowBeforeAfter =
@@ -112,7 +113,10 @@ export default function ClaimPage() {
         <BackgroundEffects />
       </div>
 
-      <main className="relative z-50 max-w-6xl mx-auto px-6 md:px-8 py-12 md:py-16">
+      {/* Navbar */}
+      <Navbar />
+
+      <main className="relative z-50 max-w-6xl mx-auto px-6 md:px-8 pt-24 md:pt-28 pb-12 md:pb-16">
         <header className="mb-8 md:mb-12 text-center md:text-left">
           <Badge className="bg-slate-800/60 text-slate-200 border-slate-600/50">EthosID</Badge>
           <h1 className="mt-4 text-3xl md:text-4xl font-semibold text-white text-balance">

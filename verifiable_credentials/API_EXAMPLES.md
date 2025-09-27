@@ -225,3 +225,4 @@ Common HTTP status codes:
 - `500` - Internal Server Error (server-side issues)
 - `404` - Not Found (invalid endpoint)
 
+
