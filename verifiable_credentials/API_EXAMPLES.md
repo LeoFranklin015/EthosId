@@ -224,3 +224,4 @@ Common HTTP status codes:
 - `400` - Bad Request (missing required fields)
 - `500` - Internal Server Error (server-side issues)
 - `404` - Not Found (invalid endpoint)
+
