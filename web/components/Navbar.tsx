@@ -24,12 +24,6 @@ export default function Navbar() {
               Claim Domain
             </Link>
             <Link 
-              href="/test" 
-              className="text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 rounded-md px-2 py-1 transition-colors text-sm font-medium cursor-pointer"
-            >
-              Verify Identity
-            </Link>
-            <Link 
               href="/domains" 
               className="text-slate-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 rounded-md px-2 py-1 transition-colors text-sm font-medium cursor-pointer"
             >
