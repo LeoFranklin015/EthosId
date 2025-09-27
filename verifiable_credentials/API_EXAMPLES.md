@@ -138,7 +138,7 @@ Lists all available issuer identifiers.
 
 **Issue a credential:**
 ```bash
-curl -X POST http://localhost:3000/issue-credential \
+curl -X POST http://localhost:3001/issue-credential \
   -H "Content-Type: application/json" \
   -d '{
     "credentialSubject": {
@@ -152,7 +152,7 @@ curl -X POST http://localhost:3000/issue-credential \
 
 **Verify a credential:**
 ```bash
-curl -X POST http://localhost:3000/verify-credential \
+curl -X POST http://localhost:3001/verify-credential \
   -H "Content-Type: application/json" \
   -d '{
     "credential": {
@@ -180,7 +180,7 @@ curl -X POST http://localhost:3000/verify-credential \
 ```javascript
 // Issue a credential
 const issueCredential = async (credentialData) => {
-  const response = await fetch('http://localhost:3000/issue-credential', {
+  const response = await fetch('http://localhost:3001/issue-credential', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ const issueCredential = async (credentialData) => {
 
 // Verify a credential
 const verifyCredential = async (credential) => {
-  const response = await fetch('http://localhost:3000/verify-credential', {
+  const response = await fetch('http://localhost:3001/verify-credential', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -78,5 +78,7 @@ export const getAllEnsRecords = async (name: string) => {
   )
   
   // Filter out null/undefined values and return only records with actual values
-  return ensRecords.filter(record => record.value != null && record.value !== "")
+  const data = ensRecords.filter(record => record.value != null && record.value !== "")
+  console.log(data)
+  return data
 }

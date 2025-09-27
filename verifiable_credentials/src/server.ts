@@ -109,6 +109,9 @@ app.post('/verify-credential', async (req, res) => {
   try {
     const { credential } = req.body;
 
+    console.log(credential)
+    console.log(typeof credential)
+
     // Validate required fields
     if (!credential) {
       return res.status(400).json({
