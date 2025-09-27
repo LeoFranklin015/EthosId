@@ -17,6 +17,7 @@ import {
 import Navbar from "@/components/Navbar"
 import { useAccount, useReadContract } from "wagmi"
 import { EthosIDContract, INDIA_DOMAIN_CONTRACT, ARGENTINA_DOMAIN_CONTRACT, FRANCE_DOMAIN_CONTRACT, EthosABI } from "@/lib/const"
+import Link from "next/link"
 
 const glowRing = "border border-[#1663F3]"
 const glowBeforeAfter =
@@ -262,7 +263,12 @@ export default function ClaimPage() {
                             )}
                             aria-hidden="true"
                           />
-                          <span className="text-slate-200 text-lg">{s.label}</span>
+                          <Link 
+                            href={`/domain/${s.label}`}
+                            className="text-slate-200 text-lg hover:text-white transition-colors"
+                          >
+                            {s.label}
+                          </Link>
                         </div>
                         <div className="flex items-center gap-2">
                           {isLoading && (
