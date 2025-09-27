@@ -137,19 +137,32 @@ else
     exit 1
 fi
 
-# Verify contract if API key is provided
+# Verify contract on Blockscout (works without API key)
+print_info "Verifying contract on Blockscout..."
+case "$NETWORK" in
+    "celo-mainnet")
+        CHAIN_NAME="celo"
+        ;;
+    "celo-sepolia")
+        CHAIN_NAME="celo-alfajores"  # Use celo-alfajores for celo-sepolia
+        ;;
+esac
+
+# Verify using Blockscout
+forge verify-contract $CONTRACT_ADDRESS src/ProofOfHuman.sol:ProofOfHuman --chain $CHAIN_NAME --verifier blockscout --verifier-url https://celo-sepolia.blockscout.com/api
+
+if [ $? -eq 0 ]; then
+    print_success "Contract verification submitted to Blockscout"
+    print_info "Check verification status at: $BLOCK_EXPLORER_URL/address/$CONTRACT_ADDRESS"
+else
+    print_warning "Blockscout verification failed. You can verify manually at:"
+    print_info "$BLOCK_EXPLORER_URL/verifyContract"
+    print_info "Contract Address: $CONTRACT_ADDRESS"
+fi
+
+# Also try CeloScan verification if API key is provided
 if [ -n "$CELOSCAN_API_KEY" ]; then
     print_info "Verifying contract on CeloScan..."
-    
-    # Determine chain name for forge verify-contract
-    case "$NETWORK" in
-        "celo-mainnet")
-            CHAIN_NAME="celo"
-            ;;
-        "celo-sepolia")
-            CHAIN_NAME="celo-sepolia"
-            ;;
-    esac
     
     # Encode constructor arguments for verification
     # Constructor: (address,uint256,(uint256,string[],bool))
@@ -165,12 +178,12 @@ if [ -n "$CELOSCAN_API_KEY" ]; then
     forge verify-contract --constructor-args $CONSTRUCTOR_ARGS --chain-id $CHAIN_NAME $CONTRACT_ADDRESS src/ProofOfHuman.sol:ProofOfHuman --watch
     
     if [ $? -ne 0 ]; then
-        print_warning "Verification failed. You can verify manually at:"
+        print_warning "CeloScan verification failed. You can verify manually at:"
         print_info "$BLOCK_EXPLORER_URL/verifyContract"
         print_info "Contract Address: $CONTRACT_ADDRESS"
     fi
 else
-    print_warning "CELOSCAN_API_KEY not provided, skipping verification"
+    print_warning "CELOSCAN_API_KEY not provided, skipping CeloScan verification"
 fi
 
 # Display deployment summary

@@ -25,7 +25,7 @@ contract ProofOfHuman is SelfVerificationRoot {
     address public lastUserAddress;
 
     // Events for testing
-    event VerificationCompleted(ISelfVerificationRoot.GenericDiscloseOutputV2 output, bytes userData);
+    event VerificationCompleted(ISelfVerificationRoot.GenericDiscloseOutputV2 output, bytes userData, string country);
 
       // Doing this because Reverse Lookup isnt achieved in the L2 registry.
      mapping(address => mapping(string => bool)) public userCountryVerification;
@@ -90,9 +90,7 @@ contract ProofOfHuman is SelfVerificationRoot {
         bytes memory addr = abi.encodePacked(lastUserAddress); // Convert address to bytes
 
       
-
-                // Check if registry exists for this country
-        address registryAddr = registryAddress[country];
+       address registryAddr = registryAddress[country];
         require(registryAddr != address(0), "No registry set for this country");
         IL2Registry registry = IL2Registry(registryAddr);
         bytes32 node = _labelToNode(string(lastUserData), registryAddr);
@@ -114,7 +112,7 @@ contract ProofOfHuman is SelfVerificationRoot {
         );
 
 
-        emit VerificationCompleted(output, userData);
+        emit VerificationCompleted(output, userData , country );
     }
 
     function setConfigId(bytes32 configId) external {
@@ -146,10 +144,7 @@ contract ProofOfHuman is SelfVerificationRoot {
         try registry.ownerOf(tokenId) {
             return false;
         } catch {
-            if (bytes(label).length >= 3) {
-                return true;
-            }
-            return false;
+            return true;
         }
     }
 
@@ -165,5 +160,9 @@ contract ProofOfHuman is SelfVerificationRoot {
     require(_registryAddress != address(0), "Invalid registry address"); 
     require(bytes(country).length > 0, "Country cannot be empty");
     registryAddress[country] = _registryAddress;
+}
+
+function getRegistryAddress(string memory country) external view returns (address) {
+    return registryAddress[country];
 }
 }

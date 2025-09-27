@@ -18,7 +18,7 @@ export default function Home() {
   const [toastMessage, setToastMessage] = useState("");
   const [selfApp, setSelfApp] = useState<SelfApp | null>(null);
   const [universalLink, setUniversalLink] = useState("");
-  const [userId] = useState(ethers.ZeroAddress);
+  const [userId] = useState("0xE08224B2CfaF4f27E2DC7cB3f6B99AcC68Cf06c0");
   // Use useMemo to cache the array to avoid creating a new array on each render
   const excludedCountries = useMemo(() => [countries.UNITED_STATES], []);
 
@@ -29,13 +29,13 @@ export default function Home() {
         version: 2,
         appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || "Self Workshop",
         scope: process.env.NEXT_PUBLIC_SELF_SCOPE || "test-scope",
-        endpoint: `0xef5d57e5ffda68d57fcb0041ef46dd8dac4da778`,
+        endpoint: `0xb4E22092314c1E446d76D495F0a8652583D93380`.toLowerCase(),
         logoBase64:
           "https://i.postimg.cc/mrmVf9hm/self.png", // url of a png image, base64 is accepted but not recommended
         userId: userId,
         endpointType: "staging_celo",
         userIdType: "hex", // use 'hex' for ethereum address or 'uuid' for uuidv4
-        userDefinedData: "Hello Eth Delhi!!!",
+        userDefinedData: "leo",
         disclosures: {
         // what you want to verify from users' identity
           minimumAge: 18,
@@ -44,7 +44,7 @@ export default function Home() {
           // what you want users to reveal
           // name: false,
           // issuing_state: true,
-          // nationality: true,
+           nationality: true,
           // date_of_birth: true,
           // passport_number: false,
           // gender: true,
