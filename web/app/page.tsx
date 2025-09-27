@@ -29,13 +29,13 @@ export default function Home() {
         version: 2,
         appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || "Self Workshop",
         scope: process.env.NEXT_PUBLIC_SELF_SCOPE || "test-scope",
-        endpoint: `0xb4E22092314c1E446d76D495F0a8652583D93380`.toLowerCase(),
+        endpoint: `0xC7fc213c3e06Bf87238e5fD0d7C68F7e5BB8A217`.toLowerCase(),
         logoBase64:
           "https://i.postimg.cc/mrmVf9hm/self.png", // url of a png image, base64 is accepted but not recommended
         userId: userId,
         endpointType: "staging_celo",
         userIdType: "hex", // use 'hex' for ethereum address or 'uuid' for uuidv4
-        userDefinedData: "leo",
+        userDefinedData: "leo1",
         disclosures: {
         // what you want to verify from users' identity
           minimumAge: 18,

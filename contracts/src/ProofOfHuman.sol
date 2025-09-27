@@ -165,4 +165,62 @@ contract ProofOfHuman is SelfVerificationRoot {
 function getRegistryAddress(string memory country) external view returns (address) {
     return registryAddress[country];
 }
+
+/**
+ * @notice Sets a text record for a verified user's ENS name
+ * @param country The country code for the registry
+ * @param label The ENS label/name
+ * @param key The text record key (e.g., "email", "url", "description")
+ * @param value The text record value
+ */
+function setTextRecord(
+    string memory country,
+    string memory label,
+    string memory key,
+    string memory value
+) external {
+    address registryAddr = registryAddress[country];
+    require(registryAddr != address(0), "No registry set for this country");
+    
+    IL2Registry registry = IL2Registry(registryAddr);
+    bytes32 node = _labelToNode(label, registryAddr);
+    
+    // Verify that the caller owns this ENS name
+    uint256 tokenId = uint256(node);
+    require(registry.ownerOf(tokenId) == msg.sender, "Not the owner of this ENS name");
+    
+    // Set the text record
+    registry.setText(node, key, value);
+}
+
+/**
+ * @notice Sets multiple text records for a verified user's ENS name in a single transaction
+ * @param country The country code for the registry
+ * @param label The ENS label/name
+ * @param keys Array of text record keys
+ * @param values Array of text record values (must match keys array length)
+ */
+function setMultipleTextRecords(
+    string memory country,
+    string memory label,
+    string[] memory keys,
+    string[] memory values
+) external {
+    require(keys.length == values.length, "Keys and values arrays must have the same length");
+    
+    address registryAddr = registryAddress[country];
+    require(registryAddr != address(0), "No registry set for this country");
+    
+    IL2Registry registry = IL2Registry(registryAddr);
+    bytes32 node = _labelToNode(label, registryAddr);
+    
+    // Verify that the caller owns this ENS name
+    uint256 tokenId = uint256(node);
+    require(registry.ownerOf(tokenId) == msg.sender, "Not the owner of this ENS name");
+    
+    // Set all text records
+    for (uint256 i = 0; i < keys.length; i++) {
+        registry.setText(node, keys[i], values[i]);
+    }
+}
 }
