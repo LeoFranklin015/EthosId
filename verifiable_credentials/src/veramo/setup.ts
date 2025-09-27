@@ -37,7 +37,12 @@ const INFURA_PROJECT_ID = 'e3e1c42c729045a99f976837920df2bd'
 const KMS_SECRET_KEY =
   '81946f9f33086c9dc24f8ee285e0abeb4277e360a225eef6aa1c14e1ab871224'
 
-  const dbConnection = new DataSource({
+let agent: any = null;
+
+async function initializeAgent() {
+  if (agent) return agent;
+
+  const dbConnection = await new DataSource({
     type: 'sqlite',
     database: DATABASE_FILE,
     synchronize: false,
@@ -47,7 +52,7 @@ const KMS_SECRET_KEY =
     entities: Entities,
   }).initialize()
 
-  export const agent = createAgent<IDIDManager & IKeyManager & IDataStore & IDataStoreORM & IResolver & ICredentialPlugin>({
+  agent = createAgent<IDIDManager & IKeyManager & IDataStore & IDataStoreORM & IResolver & ICredentialPlugin>({
     plugins: [
       new KeyManager({
         store: new KeyStore(dbConnection),
@@ -86,3 +91,12 @@ const KMS_SECRET_KEY =
       new CredentialPlugin(),
     ],
   })
+
+  return agent;
+}
+
+export { initializeAgent };
+export const getAgent = () => agent;
+
+// For backward compatibility with existing scripts
+export { agent };
