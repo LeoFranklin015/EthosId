@@ -7,6 +7,9 @@ import { SelfStructs } from "@selfxyz/contracts/contracts/libraries/SelfStructs.
 import { SelfUtils } from "@selfxyz/contracts/contracts/libraries/SelfUtils.sol";
 import { IIdentityVerificationHubV2 } from "@selfxyz/contracts/contracts/interfaces/IIdentityVerificationHubV2.sol";
 
+import {IL2Registry} from "./interfaces/IL2Registry.sol";
+
+
 /**
  * @title TestSelfVerificationRoot
  * @notice Test implementation of SelfVerificationRoot for testing purposes
@@ -24,6 +27,24 @@ contract ProofOfHuman is SelfVerificationRoot {
     // Events for testing
     event VerificationCompleted(ISelfVerificationRoot.GenericDiscloseOutputV2 output, bytes userData);
 
+      // Doing this because Reverse Lookup isnt achieved in the L2 registry.
+     mapping(address => mapping(string => bool)) public userCountryVerification;
+
+
+  /// @notice Maps nullifiers to user identifiers for registration tracking
+    mapping(uint256 nullifier => uint256 userIdentifier) internal _nullifierToUserIdentifier;
+
+ /// @notice Reverts when a nullifier has already been registered
+    error AlreadyRegistered();
+    /// @notice The chainId for the current chain
+    uint256 public chainId;
+
+    /// @notice The coinType for the current chain (ENSIP-11)
+    uint256 public immutable coinType;
+
+    mapping (string => address) registryAddress;
+
+
     /**
      * @notice Constructor for the test contract
      * @param identityVerificationHubV2Address The address of the Identity Verification Hub V2
@@ -38,6 +59,13 @@ contract ProofOfHuman is SelfVerificationRoot {
         verificationConfig = SelfUtils.formatVerificationConfigV2(_verificationConfig);
         verificationConfigId =
             IIdentityVerificationHubV2(identityVerificationHubV2Address).setVerificationConfigV2(verificationConfig);
+
+        assembly {
+            sstore(chainId.slot, chainid())
+        }
+
+        // Calculate the coinType for the current chain according to ENSIP-11
+        coinType = (0x80000000 | chainId) >> 0;
     }
 
     /**
@@ -58,6 +86,33 @@ contract ProofOfHuman is SelfVerificationRoot {
         lastOutput = output;
         lastUserData = userData;
         lastUserAddress = address(uint160(output.userIdentifier));
+        string memory country = output.nationality;
+        bytes memory addr = abi.encodePacked(lastUserAddress); // Convert address to bytes
+
+      
+
+                // Check if registry exists for this country
+        address registryAddr = registryAddress[country];
+        require(registryAddr != address(0), "No registry set for this country");
+        IL2Registry registry = IL2Registry(registryAddr);
+        bytes32 node = _labelToNode(string(lastUserData), registryAddr);
+      // Set the forward address for the current chain. This is needed for reverse resolution.
+        // E.g. if this contract is deployed to Base, set an address for chainId 8453 which is
+        // coinType 2147492101 according to ENSIP-11.
+     registry.setAddr(node, coinType, addr);
+
+        // Set the forward address for mainnet ETH (coinType 60) for easier debugging.
+        registry.setAddr(node, 60, addr);
+
+        
+        // Register the name in the L2 registry
+        registry.createSubnode(
+            registry.baseNode(),
+            string(lastUserData),
+            lastUserAddress,
+            new bytes[](0)
+        );
+
 
         emit VerificationCompleted(output, userData);
     }
@@ -78,4 +133,37 @@ contract ProofOfHuman is SelfVerificationRoot {
     {
         return verificationConfigId;
     }
+
+
+        /// @notice Checks if a given label is available for registration
+    /// @dev Uses try-catch to handle the ERC721NonexistentToken error
+    /// @param label The label to check availability for
+    /// @return available True if the label can be registered, false if already taken
+    function available(string calldata label , address _registry) external view returns (bool) {
+        bytes32 node = _labelToNode(label, _registry);
+        uint256 tokenId = uint256(node);
+        IL2Registry registry = IL2Registry(_registry);
+        try registry.ownerOf(tokenId) {
+            return false;
+        } catch {
+            if (bytes(label).length >= 3) {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    function _labelToNode(
+        string memory label,
+        address _registryAddress
+    ) private view returns (bytes32) {
+        IL2Registry _registry = IL2Registry(_registryAddress);
+        return _registry.makeNode(_registry.baseNode(), label);
+    }
+
+  function _setRegistry(string memory country, address _registryAddress) external {
+    require(_registryAddress != address(0), "Invalid registry address"); 
+    require(bytes(country).length > 0, "Country cannot be empty");
+    registryAddress[country] = _registryAddress;
+}
 }
