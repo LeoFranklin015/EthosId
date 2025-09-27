@@ -42,4 +42,4 @@ async function resolveEns(name: string) {
   return ensAddress
 }
 
-resolveEns("leo1.argentina.eth").catch(console.error)
+resolveEns("leo.india.eth").catch(console.error)
