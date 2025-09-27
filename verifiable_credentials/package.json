@@ -1,0 +1,38 @@
+{
+  "name": "veramo-node-tutorial",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "ts-node": "^10.9.1",
+    "tsx": "^4.20.6",
+    "typescript": "^4.8.4",
+    "nx": "21.5.3"
+  },
+  "dependencies": {
+    "@veramo/core": "^5.1.2",
+    "@veramo/credential-w3c": "^5.1.2",
+    "@veramo/data-store": "^5.1.2",
+    "@veramo/did-manager": "^5.1.2",
+    "@veramo/did-provider-ethr": "^5.1.2",
+    "@veramo/did-provider-key": "^6.0.0",
+    "@veramo/did-provider-web": "^5.1.2",
+    "@veramo/did-resolver": "^5.1.2",
+    "@veramo/key-manager": "^5.1.2",
+    "@veramo/kms-local": "^5.1.2",
+    "ethr-did-resolver": "^7.0.2",
+    "key-did-resolver": "^4.0.0",
+    "sqlite3": "^5.1.2",
+    "web-did-resolver": "^2.0.21"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node --loader ts-node/esm",
+    "dev": "node --loader ts-node/esm",
+    "list-identifiers": "node --loader ts-node/esm ./src/list-identifiers.ts",
+    "create-identifier": "node --loader ts-node/esm ./src/create-identifier.ts",
+    "create-credential": "node --loader ts-node/esm ./src/create-credential.ts",
+    "verify-credential": "node --loader ts-node/esm ./src/verify-credential.ts"
+  },
+  "nx": {}
+}
