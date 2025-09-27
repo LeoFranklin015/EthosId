@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { DM_Sans } from "next/font/google"
 import "./globals.css"
-
+import Provider from "@/components/Provider
 const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-dm-sans",
@@ -21,7 +21,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <Provider>
       <body className={`${dmSans.variable} font-sans antialiased`}>{children}</body>
+      </Provider>
     </html>
   )
 }
