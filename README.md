@@ -26,11 +26,11 @@ These credentials are embedded into ENS records and can be verified across any c
 
 Make it real for developers and users.
 
-- **Wallets** – Show verified nationality in profiles.
+- **Wallets** – Show verified nationality in profiles ( No more fake wallets ).
 
 - **DAOs** – Restrict membership to country-based groups.
 
-- **Verified Records** - No more identity theft
+- **Verified Records on ENS** - No more identity theft
 
 - **Dapps** – Attach verified identity to marketplaces/socials.
 
