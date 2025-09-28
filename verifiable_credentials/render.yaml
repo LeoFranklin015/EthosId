@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: verifiable-credentials-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: INFURA_PROJECT_ID
+        sync: false  # You'll set this in Render dashboard
+      - key: KMS_SECRET_KEY
+        sync: false  # You'll set this in Render dashboard

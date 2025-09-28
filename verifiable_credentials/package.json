@@ -31,6 +31,7 @@
     "web-did-resolver": "^2.0.21"
   },
   "scripts": {
+    "build": "tsc",
     "start": "node --loader ts-node/esm ./src/server.ts",
     "dev": "node --loader ts-node/esm ./src/server.ts",
     "server": "node --loader ts-node/esm ./src/server.ts",
