@@ -1,6 +1,10 @@
+import { getEnsName } from '@/utils/ens';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useState, useEffect } from 'react';
 
 export const CustomConnectButton = () => {
+  const [ensName, setEnsName] = useState<string | null>(null);
+
   return (
     <ConnectButton.Custom>
       {({
@@ -21,6 +25,27 @@ export const CustomConnectButton = () => {
           chain &&
           (!authenticationStatus ||
             authenticationStatus === 'authenticated');
+
+            console.log(account);
+
+            // Fetch ENS name when account changes
+            useEffect(() => {
+              const fetchEnsName = async () => {
+                if (account?.address) {
+                  try {
+                    const name = await getEnsName(account.address as `0x${string}`);
+                    setEnsName(name);
+                  } catch (error) {
+                    console.error('Error fetching ENS name:', error);
+                    setEnsName(null);
+                  }
+                } else {
+                  setEnsName(null);
+                }
+              };
+
+              fetchEnsName();
+            }, [account?.address]);
 
         return (
           <div
@@ -65,7 +90,7 @@ export const CustomConnectButton = () => {
                     type="button"
                     className="bg-slate-800 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 text-slate-200 px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
                   >
-                    {account.displayName}
+                    {ensName || account.displayName}
                     {account.displayBalance
                       ? ` (${account.displayBalance})`
                       : ''}
