@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { initializeAgent, getAgent } from './veramo/setup.js';
 
 const app = express();
@@ -11,7 +11,7 @@ let agent: any = null;
 app.use(express.json());
 
 // Initialize agent middleware
-app.use(async (req, res, next) => {
+app.use(async (req: Request, res: Response, next: NextFunction) => {
   if (!agent) {
     try {
       agent = await initializeAgent();
@@ -27,7 +27,7 @@ app.use(async (req, res, next) => {
 });
 
 // CORS middleware
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -40,12 +40,12 @@ app.use((req, res, next) => {
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'OK', message: 'Verifiable Credentials Server is running' });
 });
 
 // Issue Credential endpoint
-app.post('/issue-credential', async (req, res) => {
+app.post('/issue-credential', async (req: Request, res: Response) => {
   try {
     const { credentialSubject, issuerAlias, proofFormat = 'jwt' } = req.body;
 
@@ -105,7 +105,7 @@ app.post('/issue-credential', async (req, res) => {
 });
 
 // Verify Credential endpoint
-app.post('/verify-credential', async (req, res) => {
+app.post('/verify-credential', async (req: Request, res: Response) => {
   try {
     const { credential } = req.body;
 
@@ -142,7 +142,7 @@ app.post('/verify-credential', async (req, res) => {
 });
 
 // List identifiers endpoint (useful for debugging)
-app.get('/identifiers', async (req, res) => {
+app.get('/identifiers', async (req: Request, res: Response) => {
   try {
     const identifiers = await agent.didManagerFind();
     res.json({
@@ -160,7 +160,7 @@ app.get('/identifiers', async (req, res) => {
 });
 
 // Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('Unhandled error:', err);
   res.status(500).json({
     success: false,
@@ -170,7 +170,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use('*', (req: Request, res: Response) => {
   res.status(404).json({
     success: false,
     error: 'Endpoint not found',
