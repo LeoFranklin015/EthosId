@@ -1,10 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useAccount } from "wagmi";
 import Navbar from "../../components/Navbar";
 import { Badge } from "@/components/ui/badge";
+import { getDomainsForAccount } from "../../lib/graphql";
 
 export default function DomainsPage() {
+  const { address, isConnected } = useAccount();
   const [domains, setDomains] = useState<Array<{
     id: string;
     name: string;
@@ -12,26 +15,44 @@ export default function DomainsPage() {
     status: "Active" | "Pending" | "Expired";
     registeredAt: string;
   }>>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data for demonstration
   useEffect(() => {
-    setDomains([
-      {
-        id: "1",
-        name: "alice.india.eth",
-        country: "India",
-        status: "Active",
-        registeredAt: "2024-01-15"
-      },
-      {
-        id: "2", 
-        name: "bob.japan.eth",
-        country: "Japan",
-        status: "Pending",
-        registeredAt: "2024-01-20"
+    const fetchDomains = async () => {
+      if (!isConnected || !address) {
+        setDomains([]);
+        return;
       }
-    ]);
-  }, []);
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const domainsData = await getDomainsForAccount(address.toLowerCase());
+        
+        
+        // Transform the data to match our component's expected format
+        const transformedDomains = domainsData.map((domain, index: number) => ({
+          id: `${domain.name}-${index}`,
+          name: domain.name,
+          country: "Unknown", // ENS doesn't provide country info directly
+          status: (domain.expiryDate && new Date(domain.expiryDate * 1000) > new Date() ? "Active" : "Expired") as "Active" | "Pending" | "Expired",
+          registeredAt: domain.createdAt ? new Date(domain.createdAt * 1000).toISOString().split('T')[0] : "Unknown"
+        }));
+
+        setDomains(transformedDomains);
+      } catch (err) {
+        console.error('Error fetching domains:', err);
+        setError('Failed to fetch domains. Please try again.');
+        setDomains([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDomains();
+  }, [isConnected, address]);
 
   return (
     <div className="min-h-screen bg-slate-900 relative overflow-hidden font-sans">
@@ -54,7 +75,22 @@ export default function DomainsPage() {
         </header>
 
         <section className="space-y-6">
-          {domains.length === 0 ? (
+          {!isConnected ? (
+            <div className="text-center py-12">
+              <div className="text-slate-400 text-lg mb-4">Please connect your wallet</div>
+              <p className="text-slate-500">Connect your wallet to view your domains.</p>
+            </div>
+          ) : loading ? (
+            <div className="text-center py-12">
+              <div className="text-slate-400 text-lg mb-4">Loading domains...</div>
+              <p className="text-slate-500">Fetching your ENS domains from the blockchain.</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <div className="text-red-400 text-lg mb-4">Error loading domains</div>
+              <p className="text-slate-500">{error}</p>
+            </div>
+          ) : domains.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-slate-400 text-lg mb-4">No domains found</div>
               <p className="text-slate-500">You haven't claimed any domains yet.</p>
