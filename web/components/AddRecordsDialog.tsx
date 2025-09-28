@@ -115,7 +115,7 @@ export default function AddRecordsDialog({ ensName, onRecordsAdded }: AddRecords
       console.log("Sending credential subject:", credentialSubject);
 
       // Issue credential via API
-      const response = await fetch('http://localhost:3001/issue-credential', {
+      const response = await fetch('https://b8b185f222e8.ngrok-free.app/issue-credential', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
