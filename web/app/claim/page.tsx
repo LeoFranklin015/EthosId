@@ -144,7 +144,7 @@ export default function ClaimPage() {
       const app = new SelfAppBuilder({
         version: 2,
         appName: process.env.NEXT_PUBLIC_SELF_APP_NAME || "EthosID",
-        scope: process.env.NEXT_PUBLIC_SELF_SCOPE || "ethosid-scope",
+        scope: process.env.NEXT_PUBLIC_SELF_SCOPE || "test-scope",
         endpoint: `0x8b995B9EA93EADC98BeEb5873F36DB263fdfE9cF`.toLowerCase(),
         logoBase64: "https://i.postimg.cc/mrmVf9hm/self.png",
         userId: userId,
