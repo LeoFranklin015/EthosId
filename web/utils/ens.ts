@@ -46,25 +46,18 @@ export const getAllEnsRecords = async (name: string) => {
     "url",
     "avatar",
     "description",
-    "notice",
-    "keywords",
     "com.twitter",
     "com.github",
     "com.discord",
     "org.telegram",
-    "com.ens",
     "com.reddit",
-    "com.youtube",
     "com.instagram",
-    "com.facebook",
     "com.linkedin",
     "com.twitch",
     "com.tiktok",
-    "com.pinterest",
-    "com.spotify",
-    "com.soundcloud",
     "com.creditscore",
     "com.bank",
+    "com.netflix"
   ]
   
   const ensRecords = await Promise.all(

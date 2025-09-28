@@ -22,6 +22,8 @@ export default function AddRecordsDialog({ ensName, onRecordsAdded }: AddRecords
   const [credentialLoading, setCredentialLoading] = useState(false);
   const [issuedCredential, setIssuedCredential] = useState<string | null>(null);
   const [storingToEns, setStoringToEns] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<string | null>(null);
+  const [recordValue, setRecordValue] = useState("");
   
   const { address: connectedAddress } = useAccount();
 
@@ -93,8 +95,8 @@ export default function AddRecordsDialog({ ensName, onRecordsAdded }: AddRecords
       return;
     }
 
-    if (!credentialKey.trim() || !credentialValue.trim()) {
-      alert("Please enter both key and value");
+    if (!credentialKey.trim() || !recordValue.trim()) {
+      alert("Please select a record type and enter a value");
       return;
     }
 
@@ -105,7 +107,7 @@ export default function AddRecordsDialog({ ensName, onRecordsAdded }: AddRecords
         id: `did:ens:${ensName}#${connectedAddress}`,
         ensName: ensName,
         address: connectedAddress,
-        [credentialKey]: credentialValue, // Include the key-value pair
+        [credentialKey]: recordValue, // Include the key-value pair
         credentialType: "identity",
         issuedAt: new Date().toISOString()
       };
@@ -142,6 +144,26 @@ export default function AddRecordsDialog({ ensName, onRecordsAdded }: AddRecords
     }
   };
 
+   const textRecords = [
+    "email",
+    "url",
+    "avatar",
+    "description",
+    "com.twitter",
+    "com.github",
+    "com.discord",
+    "org.telegram",
+    "com.reddit",
+    "com.instagram",
+    "com.linkedin",
+    "com.twitch",
+    "com.tiktok",
+    "com.creditscore",
+    "com.bank",
+    "com.netflix"
+  ]
+  
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -155,7 +177,7 @@ export default function AddRecordsDialog({ ensName, onRecordsAdded }: AddRecords
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-md bg-slate-900/95 backdrop-blur-md border-slate-700/50">
+      <DialogContent className="sm:max-w-lg bg-slate-900/95 backdrop-blur-md border-slate-700/50">
         <DialogHeader>
           <DialogTitle className="text-white">Issue Verifiable Credentials</DialogTitle>
           <DialogDescription className="text-slate-300">
@@ -164,32 +186,60 @@ export default function AddRecordsDialog({ ensName, onRecordsAdded }: AddRecords
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Credential Key-Value Inputs */}
+          {/* Available Text Records */}
           <div className="space-y-3">
-            <div className="space-y-2">
-              <Label className="text-slate-200">Credential Key</Label>
-              <Input
-                placeholder="com.credential"
-                value={credentialKey}
-                onChange={(e) => setCredentialKey(e.target.value)}
-                className="bg-slate-800/50 border-slate-600 text-white placeholder:text-slate-400"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="text-slate-200">Credential Value</Label>
-              <Input
-                placeholder="Enter the value for this credential"
-                value={credentialValue}
-                onChange={(e) => setCredentialValue(e.target.value)}
-                className="bg-slate-800/50 border-slate-600 text-white placeholder:text-slate-400"
-              />
-            </div>
-            
-            <div className="text-xs text-slate-400">
-              This key-value pair will be included in the credential and stored on ENS
+            <Label className="text-slate-200">Select a record type:</Label>
+            <div className="flex flex-wrap gap-2">
+              {textRecords.map((record) => (
+                <button
+                  key={record}
+                  onClick={() => {
+                    setSelectedRecord(record);
+                    setCredentialKey(record);
+                    setRecordValue("");
+                  }}
+                  className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                    selectedRecord === record
+                      ? "bg-blue-600/20 border-blue-500/50 text-blue-300"
+                      : "bg-slate-700/50 border-slate-600 text-slate-300 hover:bg-slate-600/50"
+                  }`}
+                >
+                  {record}
+                </button>
+              ))}
             </div>
           </div>
+
+          {/* Selected Record Value Input */}
+          {selectedRecord && (
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label className="text-slate-200">Value for {selectedRecord}</Label>
+                <Input
+                  placeholder={`Enter value for ${selectedRecord}...`}
+                  value={recordValue}
+                  onChange={(e) => setRecordValue(e.target.value)}
+                  className="bg-slate-800/50 border-slate-600 text-white placeholder:text-slate-400"
+                />
+                <div className="text-xs text-slate-400">
+                  This will be included in the credential as {selectedRecord}: "{recordValue}"
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-slate-200">Custom Key (optional)</Label>
+                <Input
+                  placeholder={selectedRecord}
+                  value={credentialKey}
+                  onChange={(e) => setCredentialKey(e.target.value)}
+                  className="bg-slate-800/50 border-slate-600 text-white placeholder:text-slate-400"
+                />
+                <div className="text-xs text-slate-400">
+                  Override the key name if needed (defaults to the selected record type)
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Issued Credential Display */}
           {issuedCredential && (
