@@ -132,7 +132,7 @@ export default function EnsProfileCard({ ensName }: EnsProfileCardProps) {
       // Parse JWT to get credential dat
       console.log(JSON.parse(credentialJwt))
       
-      const response = await fetch('http://localhost:3001/verify-credential', {
+      const response = await fetch('https://b8b185f222e8.ngrok-free.app/verify-credential', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
