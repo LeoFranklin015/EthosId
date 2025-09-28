@@ -2,12 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
+import { useRouter } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { getDomainsForAccount } from "../../lib/graphql";
 
 export default function DomainsPage() {
   const { address, isConnected } = useAccount();
+  const router = useRouter();
   const [domains, setDomains] = useState<Array<{
     id: string;
     name: string;
@@ -17,6 +21,7 @@ export default function DomainsPage() {
   }>>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState("");
 
   useEffect(() => {
     const fetchDomains = async () => {
@@ -54,6 +59,25 @@ export default function DomainsPage() {
     fetchDomains();
   }, [isConnected, address]);
 
+  const handleSearch = () => {
+    if (!searchInput.trim()) return;
+    
+    // Ensure the domain ends with .eth, if not add it
+    let domainName = searchInput.trim();
+    if (!domainName.endsWith('.eth')) {
+      domainName = domainName + '.eth';
+    }
+    
+    // Navigate to the domain page
+    router.push(`/domain/${domainName}`);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 relative overflow-hidden font-sans">
       <div className="absolute inset-0 z-0">
@@ -73,6 +97,33 @@ export default function DomainsPage() {
             Manage your country-verified ENS domains
           </p>
         </header>
+
+        {/* Search Bar Section */}
+        <section className="mb-8">
+          <div className="bg-slate-800/60 backdrop-blur-md border border-slate-700/50 rounded-xl p-6">
+            <h2 className="text-xl font-semibold text-white mb-4">Search ENS Domain</h2>
+            <p className="text-slate-300 mb-4">
+              Enter an ENS domain name to view its profile and records
+            </p>
+            <div className="flex gap-3">
+              <Input
+                type="text"
+                placeholder="Enter ENS domain (e.g., vitalik.eth)"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="flex-1 bg-slate-900/50 border-slate-600/50 text-white placeholder:text-slate-400 focus:border-blue-500/50 focus:ring-blue-500/20"
+              />
+              <Button
+                onClick={handleSearch}
+                disabled={!searchInput.trim()}
+                className="bg-blue-600 hover:bg-blue-700 text-white border-0 px-6"
+              >
+                Search
+              </Button>
+            </div>
+          </div>
+        </section>
 
         <section className="space-y-6">
           {!isConnected ? (
