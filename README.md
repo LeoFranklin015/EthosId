@@ -20,3 +20,19 @@ These credentials are embedded into ENS records and can be verified across any c
 ## Architecture
 
 <img width="5807" height="2461" alt="image" src="https://github.com/user-attachments/assets/a2445d66-7d7c-4a52-8b08-8b563f5a3a0a" />
+
+
+## UseCases
+
+Make it real for developers and users.
+
+- **Wallets** – Show verified nationality in profiles.
+
+- **DAOs** – Restrict membership to country-based groups.
+
+- **Verified Records** - No more identity theft
+
+- **Dapps** – Attach verified identity to marketplaces/socials.
+
+- **Cross-chain protocols** – Verify ENS credentials anywhere.
+
